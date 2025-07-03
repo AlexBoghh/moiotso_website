@@ -1,0 +1,167 @@
+ @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+    
+    @property --hue {
+      initial-value: 0;
+      syntax: '<number>';
+      inherits: false;
+    }
+    @property --chroma {
+      initial-value: 0;
+      syntax: '<number>';
+      inherits: true;
+    }
+
+    .scroll-animation-container {
+      --font-size-min: 14;
+      --font-size-max: 20;
+      --font-ratio-min: 1.1;
+      --font-ratio-max: 1.33;
+      --font-width-min: 375;
+      --font-width-max: 1500;
+      --start: 0;
+      --end: 360;
+      --lightness: 65%;
+      --base-chroma: 0.3;
+      
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: light-dark(white, black);
+      font-family: 'Geist', 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Helvetica, Arial, sans-serif, system-ui;
+      position: relative;
+      color-scheme: light dark;
+    }
+
+    .scroll-animation-container[data-theme='light'] {
+      color-scheme: light only;
+      --lightness: 65%;
+    }
+
+    .scroll-animation-container[data-theme='dark'] {
+      color-scheme: dark only;
+      --lightness: 75%;
+    }
+
+    .scroll-animation-container .content {
+      align-items: flex-start;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .scroll-animation-container {
+        --lightness: 75%;
+      }
+    }
+
+    .scroll-animation-container[data-sync-scrollbar='true'] {
+      scrollbar-color: oklch(var(--lightness) var(--chroma) var(--hue)) #0000;
+    }
+
+    .scroll-animation-container[data-debug='true'] li {
+      outline: 0.05em dashed currentColor;
+    }
+
+    .scroll-animation-container[data-debug='true'] h2,
+    .scroll-animation-container[data-debug='true'] li:last-of-type {
+      outline: 0.05em dashed canvasText;
+    }
+
+    .scroll-animation-container[data-snap='true'] {
+      scroll-snap-type: y proximity;
+    }
+
+    .scroll-animation-container[data-snap='true'] li {
+      scroll-snap-align: center;
+    }
+
+    .scroll-animation-container ul {
+      --step: calc((var(--end) - var(--start)) / (var(--count) - 1));
+      font-weight: 600;
+      padding-inline: 0;
+      margin: 0;
+      list-style-type: none;
+    }
+
+    .scroll-animation-container li:not(:last-of-type) {
+      color: oklch(var(--lightness) var(--base-chroma) calc(var(--start) + (var(--step) * var(--i))));
+    }
+
+    .scroll-animation-container h2,
+    .scroll-animation-container li:last-of-type {
+      background: linear-gradient(canvasText 50%, color-mix(in oklch, canvas, canvasText 25%));
+      background-clip: text;
+      color: transparent;
+    }
+
+    .scroll-animation-container .fluid {
+      --fluid-min: calc(var(--font-size-min) * pow(var(--font-ratio-min), var(--font-level, 0)));
+      --fluid-max: calc(var(--font-size-max) * pow(var(--font-ratio-max), var(--font-level, 0)));
+      --fluid-preferred: calc((var(--fluid-max) - var(--fluid-min)) / (var(--font-width-max) - var(--font-width-min)));
+      --fluid-type: clamp(
+        (var(--fluid-min) / 16) * 1rem,
+        ((var(--fluid-min) / 16) * 1rem) - (((var(--fluid-preferred) * var(--font-width-min)) / 16) * 1rem) + (var(--fluid-preferred) * var(--variable-unit, 100vi)),
+        (var(--fluid-max) / 16) * 1rem
+      );
+      font-size: var(--fluid-type);
+    }
+
+    @supports (animation-timeline: scroll()) and (animation-range: 0% 100%) {
+      .scroll-animation-container[data-sync-scrollbar='true'][data-animate='true'] {
+        timeline-scope: --list;
+        scrollbar-color: oklch(var(--lightness) var(--chroma, 0) var(--hue)) #0000;
+        animation-name: change, chroma-on, chroma-off;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-range: entry 50% exit 50%, entry 40% entry 50%, exit 30% exit 40%;
+        animation-timeline: --list;
+      }
+      
+      .scroll-animation-container[data-sync-scrollbar='true'][data-animate='true'] ul {
+        view-timeline: --list;
+      }
+
+      .scroll-animation-container[data-animate='true'] li {
+        opacity: 0.2;
+        animation-name: brighten;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-range: cover calc(50% - 1lh) calc(50% + 1lh);
+        animation-timeline: view();
+      }
+
+      .scroll-animation-container[data-animate='true'] li:first-of-type {
+        --start-opacity: 1;
+      }
+      
+      .scroll-animation-container[data-animate='true'] li:last-of-type {
+        --brightness: 1;
+        --end-opacity: 1;
+      }
+
+      @keyframes change {
+        to { --hue: var(--end); }
+      }
+      @keyframes chroma-on {
+        to { --chroma: 0.3; }
+      }
+      @keyframes chroma-off {
+        to { --chroma: 0; }
+      }
+      @keyframes brighten {
+        0% { opacity: var(--start-opacity, 0.2); }
+        50% { opacity: 1; filter: brightness(var(--brightness, 1.2)); }
+        100% { opacity: var(--end-opacity, 0.2); }
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }

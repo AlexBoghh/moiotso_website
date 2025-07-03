@@ -1,0 +1,127 @@
+/* ===========================
+   MoiotsoLandingPage.css
+   =========================== */
+
+/* (Tu CSS original, tal como lo tenías) */
+.moiotso-landing {
+  min-height: 100vh;
+  background: #060010;
+  color: white;
+  position: relative;
+}
+
+/* Hero section container that contains the PlasmaWave */
+.hero-section {
+  position: relative;
+  height: 85vh; /* Reduced from 100vh to bring sections closer */
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 110px;
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  align-items: center;
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  justify-content: space-between;
+  width: 100vw;
+  padding: 0 4em;
+  height: 160px;
+  margin: 0 auto;
+  background: linear-gradient(to bottom, #060010, transparent);
+}
+
+/* Ensure hero content appears above the plasma wave background */
+.moiotso-landing > *:not(:first-child) {
+  position: relative;
+  z-index: 10;
+}
+
+/* Reduce gap between hero and features sections */
+.hero-section + * {
+  margin-top: -5vh; /* lo corregiremos abajo */
+}
+
+/* Responsive design */
+@media (min-width: 1024px) {
+  .landing-nav-items {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 2rem;
+    height: 120px;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+  
+  .cta-button {
+    font-size: 0.8rem;
+    padding: 0 1rem;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 1rem;
+    height: 90px;
+  }
+}
+
+/* … (resto de tu CSS original, sin tocar) … */
+
+/* ================================================================
+   OVERRIDES PARA AISLAR SCROLLTEXTSECTION Y FORZAR POSITION:STICKY
+   ================================================================ */
+
+/* 1) Asegurarnos de que el wrapper no sea un contenedor con overflow/altura fija */
+.landing-wrapper {
+  display: block !important;
+  overflow: visible !important;
+  height: auto !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+}
+
+/* 2) Evitar recorte justo debajo de la hero */
+.hero-section + * {
+  margin-top: -220px !important;
+}
+
+/* 3) Desbloquear cualquier overflow en el mismo ScrollTextSection */
+.scroll-animation-container {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 0 !important;
+}
+
+/* 4) El contenedor de contenido (flex inline) no debe estirar hijos */
+.scroll-animation-container .content {
+  display: flex !important;
+  align-items: flex-start !important;
+}
+
+/* 5) Forzar que el <h2> se alinee al inicio y sea sticky correctamente */
+.scroll-animation-container h2 {
+  align-self: flex-start !important;
+  z-index: 1 !important;
+}
+
+/* 6) Asegurar que el main interno no tenga overflow inesperado */
+.scroll-animation-container main {
+  overflow: visible !important;
+}
