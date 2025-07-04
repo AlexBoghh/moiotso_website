@@ -1,48 +1,83 @@
-import React, { useEffect, useRef } from 'react';
-import './ServicesSection.css';
+import React, { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SpotlightCard from './SpotlightCard';
+import './ServicesSection.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const ServicesSection = () => {
-  const cardsRef = useRef([]);
   const sectionRef = useRef(null);
+  const firstRowRef = useRef(null);
+  const secondRowRef = useRef(null);
+  const titleRowRef = useRef(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const cards = cardsRef.current.filter(Boolean);
-            cards.forEach((card, index) => {
-              if (card) {
-                setTimeout(() => {
-                  // Apply animation class directly to the card
-                  const animationClass = index % 2 === 0 ? 'animate-left' : 'animate-right';
-                  card.classList.add(animationClass);
-                }, index * 150); // Stagger the animations
-              }
-            });
-            observer.unobserve(entry.target);
+  useLayoutEffect(() => {
+    // Solo activar scroll horizontal en pantallas grandes
+    if (window.innerWidth > 1024) {
+      const sectionEl = sectionRef.current;
+      const firstRow = firstRowRef.current;
+      const secondRow = secondRowRef.current;
+      const titleRow = titleRowRef.current;
+      const totalScroll1 = firstRow.scrollWidth - firstRow.clientWidth;
+      const totalScroll2 = secondRow.scrollWidth - secondRow.clientWidth;
+      const totalScrollTitle = titleRow.scrollWidth - titleRow.clientWidth;
+      // Use the maximum scroll distance for all animations
+      const maxScroll = Math.max(totalScroll1, totalScroll2, totalScrollTitle);
+
+      ScrollTrigger.create({
+        trigger: sectionEl,
+        start: 'top top',
+        end: () => `+=${maxScroll}`,
+        pin: true,
+        scrub: 0.5,
+      });
+
+      gsap.fromTo(firstRow,
+        { x: 0 },
+        {
+          x: totalScroll1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top top',
+            end: () => `+=${maxScroll}`,
+            scrub: 0.5
           }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+        }
+      );
+      gsap.fromTo(secondRow,
+        { x: 0 },
+        {
+          x: -totalScroll2 ,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top top',
+            end: () => `+=${maxScroll}`,
+            scrub: 0.5
+          }
+        }
+      );
+      // Title: opposite direction, parallax
+      gsap.fromTo(titleRow,
+        { x: 0 },
+        {
+          x: totalScrollTitle * -2, // positive for opposite direction
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: 'top top',
+            end: () => `+=${maxScroll}`,
+            scrub: 0.5
+          }
+        }
+      );
     }
+  }, []);  // se ejecuta una vez al montar
 
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const services = [
+  // Unique content for each card, distributed across both rows
+  const allServices = [
     {
       title: "Custom Software Development",
       description: "Solve real business problems with tailor-made, scalable solutions.",
@@ -137,45 +172,45 @@ const ServicesSection = () => {
     }
   ];
 
+  // Split unique cards between the two rows
+  const half = Math.ceil(allServices.length / 2);
+  const servicesRow1 = allServices.slice(0, half);
+  const servicesRow2 = allServices.slice(half);
+
   return (
     <section className="services-section" ref={sectionRef}>
       <div className="services-container">
-        {/* Header */}
+        {/* Cabecera */}
         <div className="services-header">
-          <h2 className="services-title">
-            All-in-One IT Solutions — From<br />
-            Concept to Completion
-          </h2>
-          <p className="services-subtitle">
-            We manage the entire process so you can stay focused on growing your business.
-          </p>
+  
         </div>
 
-        {/* Content */}
+        {/* Contenido */}
         <div className="services-content">
-          <div className="services-description">
-            <p>
-              Whether you're launching a new product or upgrading legacy 
-              systems, our expert team delivers fast, secure, and scalable 
-              solutions tailored to your needs.
-            </p>
-            <button className="services-cta-button">
-              Get Your Custom Software Plan
-            </button>
+          {/* Título animado (parallax, faster) */}
+          <div className="services-title-scroll-wrapper">
+            <div className="services-title-scroll" ref={titleRowRef}>
+              <span className="gradient-title">ALL-IN-ONE IT SOLUTIONS — Tailored to You</span>
+            </div>
           </div>
-
-          {/* Services Grid */}
-          <div className="services-grid">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                ref={(el) => (cardsRef.current[index] = el)}
-                className="service-card-wrapper"
-              >
+          {/* Primera fila */}
+          <div className="services-grid" ref={firstRowRef}>
+            {servicesRow1.map((service, index) => (
+              <div key={index} className="service-card-wrapper">
                 <SpotlightCard className="service-card">
-                  <div className="service-icon">
-                    {service.icon}
-                  </div>
+                  <div className="service-icon">{service.icon}</div>
+                  <h3 className="service-title">{service.title}</h3>
+                  <p className="service-description">{service.description}</p>
+                </SpotlightCard>
+              </div>
+            ))}
+          </div>
+          {/* Segunda fila, se desplaza en dirección opuesta */}
+          <div className="services-grid" ref={secondRowRef} style={{ marginTop: '3rem' }}>
+            {servicesRow2.map((service, index) => (
+              <div key={index} className="service-card-wrapper">
+                <SpotlightCard className="service-card">
+                  <div className="service-icon">{service.icon}</div>
                   <h3 className="service-title">{service.title}</h3>
                   <p className="service-description">{service.description}</p>
                 </SpotlightCard>

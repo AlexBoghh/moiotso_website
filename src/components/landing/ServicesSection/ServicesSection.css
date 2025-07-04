@@ -1,310 +1,150 @@
-/* Animation Keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Services Section Styles */
 .services-section {
   position: relative;
-  padding: 8rem 2rem;
-  background: #060010;
-  z-index: 20;
+  width: 100%;
+  /* (mantiene el fondo y color de texto heredados de la landing) */
 }
 
+/* Contenedor general de la sección de servicios */
 .services-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: none; /* Anular cualquier max-width para permitir full-width */
   margin: 0 auto;
+  padding: 4rem 2rem;
+  box-sizing: border-box;
 }
 
+/* Cabecera de la sección (mantiene estilos existentes para título y subtítulo) */
 .services-header {
   text-align: center;
-  margin-bottom: 6rem;
+  margin-bottom: 2rem;
 }
-
 .services-title {
-  font-size: 3.5rem;
-  font-weight: 600;
-  letter-spacing: -2px;
-  color: #fff;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #fff 0%, #8660fa 20%, #a855f7 40%, #8400ff 60%, #a855f7 80%, #fff 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-align: center;
-  animation: gradientShift 4s ease-in-out infinite;
-  display: inline-block;
+  font-size: 2rem;
+  margin: 0;
 }
-
 .services-subtitle {
-  font-size: 1.2rem;
-  color: #ffffffb7;
-  text-shadow:
-    0 0 2px rgba(255, 255, 255, 0.1),
-    0 0 4px rgba(255, 255, 255, 0.3),
-    0 0 8px rgba(255, 255, 255, 0.4),
-    0 0 136px rgba(132, 0, 255, 0.9);
-  font-weight: 400;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+/* Contenedor de desplazamiento horizontal */
+.services-track-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Mostrar barra de scroll horizontal solo en móviles */
+  scroll-behavior: smooth;
+}
+@media (min-width: 769px) {
+  .services-track-container {
+    overflow: hidden;  /* en desktop ocultamos scroll nativo, GSAP controlará el movimiento */
+  }
+}
+
+/* Fila horizontal de paneles (descripción + tarjetas) */
+.services-track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Panel de descripción (primer elemento de la fila horizontal) */
+.services-track .services-description {
+  min-width: 100%;
+  max-width: 100%;
   text-align: center;
+  /* Opcional: estilos adicionales para mejorar su apariencia como panel */
+  padding: 2rem 1rem;
+  box-sizing: border-box;
 }
 
-.services-content {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 6rem;
-  align-items: start;
-}
-
-.services-description {
-  position: sticky;
-  top: 2rem;
-}
-
-.services-description p {
-  font-size: 1.125rem;
-  color: #e5e7eb;
-  line-height: 1.7;
-  margin-bottom: 2.5rem;
-}
-
+/* Botón de CTA dentro de la descripción */
 .services-cta-button {
-  background: linear-gradient(135deg, #7c3aed, rgba(124, 58, 237, 0.8));
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: none;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
-.services-cta-button:hover {
-  background: linear-gradient(135deg, #8b5cf6, rgba(139, 92, 246, 0.9));
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+/* Tarjetas de servicio en la fila horizontal */
+.card-spotlight.service-card {
+  flex: 0 0 300px;             /* ancho fijo aproximado para cada tarjeta */
+  padding: 5rem 3rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05); /* ligero fondo para destacar tarjeta */
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: default;
+  transition: transform 0.3s ease;
 }
+.card-spotlight.service-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Contenido de cada tarjeta */
+.service-icon {
+  margin-bottom: 1rem;
+}
+.service-title {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+.service-description {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+/* Eliminar efecto spotlight */
+.card-spotlight::before {
+  display: none !important;
+  content: none !important;
+} 
 
 .services-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  align-items: stretch;
+  display: flex;
+  align-items: stretch;    /* las tarjetas se estiran uniformemente verticalmente */
+  gap: 2rem;              /* mantiene separación horizontal entre tarjetas */
+  overflow-x: hidden;     /* oculta scroll horizontal nativo */
 }
 
 .service-card-wrapper {
-  opacity: 0;
-  transform: translateY(30px);
-  display: flex;
-  flex-direction: column;
+  flex: 0 0 clamp(500px, 60vw, 800px);  /* ancho mínimo 500px, ideal 60% viewport, máximo 800px */
 }
 
-.service-card-wrapper.animate-left {
-  animation: slideInLeft 0.6s ease-out forwards;
-}
-
-.service-card-wrapper.animate-right {
-  animation: slideInRight 0.6s ease-out forwards;
-}
-
-.service-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 180px;
-}
-
-.service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
-  border-color: rgba(124, 58, 237, 0.3);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.service-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
+.services-description {
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
 
-.service-description {
-  font-size: 0.95rem;
-  color: #d1d5db;
-  line-height: 1.6;
-  margin: 0;
-  position: relative;
-  z-index: 2;
-  flex: 1;
-}
-
-/* Spotlight Card Styles - Exact copy from working example */
-.card-spotlight {
-  position: relative;
+/* Estilos para el título animado en scroll horizontal */
+.services-title-scroll-wrapper {
+  width: 100vw;
   overflow: hidden;
-  --mouse-x: 50%;
-  --mouse-y: 50%;
-  --spotlight-color: rgba(84, 6, 91, 0.3);
+  margin-bottom: 2.5rem;
 }
-
-.card-spotlight::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 80%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.card-spotlight:hover::before,
-.card-spotlight:focus-within::before {
-  opacity: 0.6;
-}
-
-/* Service Icon Styles */
-.service-icon {
+.services-title-scroll {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.15));
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-size: 4vw;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.1;
+  /* Optional: add gradient or shadow for effect */
 }
 
-.service-icon svg {
-  color: #8b5cf6;
-  transition: all 0.3s ease;
-}
-
-.service-card:hover .service-icon {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.25));
-  transform: scale(1.05);
-}
-
-.service-card:hover .service-icon svg {
-  color: #a78bfa;
-}
-
-/* Responsive Design */
 @media (max-width: 1024px) {
-  .services-content {
-    grid-template-columns: 1fr;
-    gap: 4rem;
-  }
-  
-  .services-description {
-    position: static;
-    text-align: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .services-section {
-    padding: 4rem 1.5rem;
-  }
-  
-  .services-title {
-    font-size: 2.5rem;
-  }
-  
-  .services-subtitle {
-    font-size: 1.125rem;
-  }
-  
-  .services-header {
-    margin-bottom: 4rem;
-  }
-  
   .services-grid {
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    overflow-x: visible;
   }
-  
-  .service-card {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .services-title {
-    font-size: 2rem;
-  }
-  
-  .services-subtitle {
-    font-size: 1rem;
-  }
-  
-  .service-card {
-    padding: 1.25rem;
-  }
-  
-  .services-cta-button {
+  .service-card-wrapper {
+    flex: 0 0 auto;
     width: 100%;
-    padding: 1.25rem 2rem;
   }
 }
