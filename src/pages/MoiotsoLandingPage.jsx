@@ -5,6 +5,8 @@ import MoiotsoFeatureCards from '../components/landing/MoiotsoFeatureCards/Moiot
 import ServicesSection from '../components/landing/ServicesSection/ServicesSection';
 import TechnologiesSection from '../components/landing/TechnologiesSection/TechnologiesSection';
 import PlasmaWaveV2 from '../components/landing/PlasmaWave/PlasmaWaveV2';
+import CallToActionSection from '../components/landing/CallToActionSection/CallToActionSection';
+
 
 // 1) Importamos primero el CSS del header y el global
 import '../components/landing/DisplayHeader/DisplayHeader.css';
@@ -34,6 +36,48 @@ const MoiotsoLandingPage = () => {
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
+    // *** Nuevo efecto para la sección ServicesSection con desplazamiento horizontal ***
+  useEffect(() => {
+    if (!isMobile) {
+      const section = document.querySelector('.services-section');
+      const track = document.querySelector('.services-track');
+      if (!(section && track)) return;
+      // Calcular el ancho total de desplazamiento horizontal
+      const totalScrollWidth = track.scrollWidth;
+      const viewportWidth = section.offsetWidth;
+      const scrollDistance = totalScrollWidth - viewportWidth;
+      // Configurar animación de desplazamiento horizontal con ScrollTrigger
+      let ctx = gsap.context(() => {
+        const scrollTween = gsap.to(track, {
+          x: -scrollDistance,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: '+=' + scrollDistance,
+            scrub: true,
+            pin: true,
+            anticipatePin: 1
+          }
+        });
+        // Animar cada tarjeta de servicio al entrar en la vista
+        gsap.utils.toArray('.service-card').forEach((card, i) => {
+          gsap.from(card, {
+            opacity: 0,
+            y: 50,
+            x: i % 2 === 0 ? -50 : 50,  // alternar dirección inicial
+            scrollTrigger: {
+              trigger: card,
+              start: 'left center',
+              containerAnimation: scrollTween
+            }
+          });
+        });
+      }, section);
+      return () => ctx.revert();
+    }
+  }, [isMobile]);
+
   return (
     <section className="landing-wrapper">
       {/* Opcional: si tienes el <title> aquí, muévelo al <head> */}
@@ -57,6 +101,8 @@ const MoiotsoLandingPage = () => {
 
        {/* Technologies Section */}
       <TechnologiesSection />
+      {/* Call to Action Section */}
+      <CallToActionSection />
     </section>
   );
 };
