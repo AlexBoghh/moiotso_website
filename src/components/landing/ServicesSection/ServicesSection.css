@@ -137,14 +137,118 @@
   /* Optional: add gradient or shadow for effect */
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+  .services-container {
+    padding: 3rem 1rem;
+  }
+  .card-spotlight.service-card {
+    padding: 3rem 1.5rem;
+    flex: 0 0 260px;
+  }
+}
+
+@media (max-width: 900px) {
+  .services-container {
+    padding: 2rem 0.5rem;
+  }
+  .services-header {
+    margin-bottom: 1.2rem;
+  }
+  .services-title {
+    font-size: 1.5rem;
+  }
+  .services-subtitle {
+    font-size: 0.95rem;
+  }
+  .card-spotlight.service-card {
+    flex: 0 0 200px;
+    padding: 2rem 1rem;
+  }
   .services-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    overflow-x: visible;
+    gap: 1.2rem;
   }
   .service-card-wrapper {
-    flex: 0 0 auto;
+    min-width: 180px;
+    max-width: 240px;
+  }
+  .card-spotlight.service-card {
+    padding: 1.2rem 1rem;
+    font-size: 0.98rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .services-grid {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .service-card-wrapper {
+    flex: 1 1 100%;
     width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  .card-spotlight.service-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100vw;
+    padding: 1.2rem 0.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .services-grid {
+    gap: 0.7rem;
+  }
+  .service-card-wrapper {
+    min-width: 120px;
+    max-width: 170px;
+  }
+  .card-spotlight.service-card {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.92rem;
+  }
+  .service-title {
+    font-size: 1rem;
+  }
+  .service-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-title {
+    font-size: 1.1rem;
+  }
+  .services-subtitle {
+    font-size: 0.8rem;
+  }
+  .card-spotlight.service-card {
+    font-size: 0.85rem;
+    padding: 0.7rem 0.2rem;
+  }
+}
+
+@media (max-width: 1024px), (max-width: 1024px) and (max-height: 600px) {
+  .services-grid {
+    gap: 1rem;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .service-card-wrapper {
+    min-width: 140px;
+    max-width: 200px;
+  }
+  .card-spotlight.service-card {
+    padding: 1rem 0.7rem;
+    font-size: 0.95rem;
+  }
+  .service-title {
+    font-size: 1.05rem;
+  }
+  .service-description {
+    font-size: 0.9rem;
   }
 }

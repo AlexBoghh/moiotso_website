@@ -13,69 +13,63 @@ const ServicesSection = () => {
   const titleRowRef = useRef(null);
 
   useLayoutEffect(() => {
-    // Solo activar scroll horizontal en pantallas grandes
-    if (window.innerWidth > 1024) {
+    if (window.innerWidth > 300) {
       const sectionEl = sectionRef.current;
       const firstRow = firstRowRef.current;
       const secondRow = secondRowRef.current;
       const titleRow = titleRowRef.current;
-      const totalScroll1 = firstRow.scrollWidth - firstRow.clientWidth;
-      const totalScroll2 = secondRow.scrollWidth - secondRow.clientWidth;
-      const totalScrollTitle = titleRow.scrollWidth - titleRow.clientWidth;
-      // Use the maximum scroll distance for all animations
-      const maxScroll = Math.max(totalScroll1, totalScroll2, totalScrollTitle);
+
+      // Helper to get the final x to center the row in the viewport
+      const getFinalX = (row) => {
+        const rowRect = row.getBoundingClientRect();
+        return (window.innerWidth / 2) - (rowRect.left + row.offsetWidth / 2);
+      };
+      // Calculate at mount
+      const centerX1 = getFinalX(firstRow);
+      const centerX2 = getFinalX(secondRow);
+      // The scroll distance is the distance from off-screen to centered
+      const scrollDist1 = Math.abs(centerX1 + window.innerWidth);
+      const scrollDist2 = Math.abs(centerX2 + window.innerWidth);
+      // Use the maximum scroll distance for pinning
+      const maxScroll = Math.max(scrollDist1, scrollDist2);
 
       ScrollTrigger.create({
         trigger: sectionEl,
         start: 'top top',
-        end: () => `+=${maxScroll}`,
+        end: () => `+=${maxScroll + window.innerHeight}`,
         pin: true,
         scrub: 0.5,
       });
 
       gsap.fromTo(firstRow,
-        { x: 0 },
+        { x: -window.innerWidth },
         {
-          x: totalScroll1,
+          x: centerX1,
           ease: 'none',
           scrollTrigger: {
             trigger: sectionEl,
             start: 'top top',
-            end: () => `+=${maxScroll}`,
+            end: () => `+=${scrollDist1}`,
             scrub: 0.5
           }
         }
       );
       gsap.fromTo(secondRow,
-        { x: 0 },
+        { x: window.innerWidth },
         {
-          x: -totalScroll2 ,
+          x: centerX2,
           ease: 'none',
           scrollTrigger: {
             trigger: sectionEl,
             start: 'top top',
-            end: () => `+=${maxScroll}`,
+            end: () => `+=${scrollDist2}`,
             scrub: 0.5
           }
         }
       );
-      // Title: opposite direction, parallax
-      gsap.fromTo(titleRow,
-        { x: 0 },
-        {
-          x: totalScrollTitle * -2, // positive for opposite direction
-          ease: 'none',
-          scrollTrigger: {
-            trigger: sectionEl,
-            start: 'top top',
-            end: () => `+=${maxScroll}`,
-            scrub: 0.5
-          }
-        }
-      );
+      // Remove GSAP animation for the title; keep it centered with CSS
     }
   }, []);  // se ejecuta una vez al montar
-
   // Unique content for each card, distributed across both rows
   const allServices = [
     {
@@ -187,11 +181,24 @@ const ServicesSection = () => {
 
         {/* Contenido */}
         <div className="services-content">
-          {/* Título animado (parallax, faster) */}
-          <div className="services-title-scroll-wrapper">
-            <div className="services-title-scroll" ref={titleRowRef}>
-              <span className="gradient-title">ALL-IN-ONE IT SOLUTIONS — Tailored to You</span>
-            </div>
+          {/* Título animado (sticky center) */}
+          {/* Section Title (centered, visible only in section) */}
+          <div className="services-title-scroll-wrapper" style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2vw' }}>
+            <h2 className="gradient-title" style={{
+              fontWeight: 700,
+              fontSize: 'clamp(2.5rem,7vw,5rem)',
+              letterSpacing: '-0.01em',
+              textAlign: 'center',
+              margin: 0,
+              background: 'linear-gradient(90deg, #A259FF 0%, #6A82FB 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent',
+              lineHeight: 1.1
+            }}>
+              All-in-one IT Solutions.
+            </h2>
           </div>
           {/* Primera fila */}
           <div className="services-grid" ref={firstRowRef}>

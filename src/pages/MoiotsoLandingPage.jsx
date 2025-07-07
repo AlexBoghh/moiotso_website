@@ -3,9 +3,9 @@ import Hero from '../components/landing/Hero/Hero';
 import DisplayHeader from '../components/landing/DisplayHeader/DisplayHeader';
 import MoiotsoFeatureCards from '../components/landing/MoiotsoFeatureCards/MoiotsoFeatureCards';
 import ServicesSection from '../components/landing/ServicesSection/ServicesSection';
-import TechnologiesSection from '../components/landing/TechnologiesSection/TechnologiesSection';
 import PlasmaWaveV2 from '../components/landing/PlasmaWave/PlasmaWaveV2';
 import CallToActionSection from '../components/landing/CallToActionSection/CallToActionSection';
+import Threads from '../content/Backgrounds/Threads/Threads';
 
 
 // 1) Importamos primero el CSS del header y el global
@@ -83,9 +83,11 @@ const MoiotsoLandingPage = () => {
       {/* Opcional: si tienes el <title> aquí, muévelo al <head> */}
       {/* <title>Moiotso - Digital Agency</title> */}
 
-      {/* Hero Section with PlasmaWave Background */}
+      {/* Hero Section with Threads Background */}
       <div className="hero-section">
-        <PlasmaWaveV2 yOffset={-300} xOffset={100} rotationDeg={-30} />
+        <div className="plasma-wave-container">
+          <Threads color={[1,1,1]} amplitude={2} distance={0} enableMouseInteraction={true}  />
+        </div>
         <DisplayHeader activeItem="home" />
         <Hero />
       </div>
@@ -99,8 +101,6 @@ const MoiotsoLandingPage = () => {
       {/* Scroll Text Section */}
       <ScrollTextSection />
 
-       {/* Technologies Section */}
-      <TechnologiesSection />
       {/* Call to Action Section */}
       <CallToActionSection />
     </section>
