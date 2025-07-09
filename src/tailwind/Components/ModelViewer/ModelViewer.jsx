@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   Canvas,
@@ -91,6 +92,8 @@ const ModelInner = ({
   autoRotate,
   autoRotateSpeed,
   onLoaded,
+  quality = 'high',
+  setFps = () => {},
 }) => {
   const outer = useRef(null);
   const inner = useRef(null);
@@ -352,6 +355,16 @@ const ModelInner = ({
     )
       need = true;
 
+    // FPS monitoring
+    if (!_.userData.lastFpsCheck) _.userData.lastFpsCheck = performance.now();
+    if (!_.userData.frameCount) _.userData.frameCount = 0;
+    _.userData.frameCount++;
+    if (performance.now() - _.userData.lastFpsCheck > 1000) {
+      setFps(_.userData.frameCount);
+      _.userData.frameCount = 0;
+      _.userData.lastFpsCheck = performance.now();
+    }
+
     if (need) invalidate();
   });
 
@@ -360,6 +373,9 @@ const ModelInner = ({
     <group ref={outer}>
       <group ref={inner}>
         <primitive object={content} />
+        {quality === 'low' && (
+          <meshStandardMaterial color="#cccccc" attach="material" />
+        )}
       </group>
     </group>
   );
@@ -393,6 +409,17 @@ const ModelViewer = ({
   autoRotateSpeed = 0.35,
   onModelLoaded,
 }) => {
+  // Device/feature detection
+  const [quality, setQuality] = useState('high');
+  const [fps, setFps] = useState(60);
+  const [webglSupported, setWebglSupported] = useState(true);
+  useEffect(() => {
+    let canvas = document.createElement('canvas');
+    let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) setWebglSupported(false);
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) setQuality('low');
+    if (navigator.deviceMemory && navigator.deviceMemory <= 4) setQuality('low');
+  }, []);
   useEffect(() => void useGLTF.preload(url), [url]);
   const pivot = useRef(new THREE.Vector3()).current;
   const contactRef = useRef(null);
@@ -433,6 +460,10 @@ const ModelViewer = ({
     invalidate();
   };
 
+  if (!webglSupported) {
+    return <div style={{ width, height }} className="relative">WebGL not supported on this device.</div>;
+  }
+
   return (
     <div
       style={{
@@ -453,7 +484,7 @@ const ModelViewer = ({
 
       <Canvas
         shadows
-        frameloop="demand"
+        frameloop={quality === 'low' ? 'demand' : 'always'}
         gl={{ preserveDrawingBuffer: true }}
         onCreated={({ gl, scene, camera }) => {
           rendererRef.current = gl;
@@ -489,34 +520,85 @@ const ModelViewer = ({
           blur={2}
         />
 
-        <Suspense fallback={<Loader placeholderSrc={placeholderSrc} />}>
+        <Suspense fallback={< Loader placeholderSrc = {
+          placeholderSrc
+        }
+        />}>
           <ModelInner
-            url={url}
-            xOff={modelXOffset}
-            yOff={modelYOffset}
-            pivot={pivot}
-            initYaw={initYaw}
-            initPitch={initPitch}
-            minZoom={minZoomDistance}
-            maxZoom={maxZoomDistance}
-            enableMouseParallax={enableMouseParallax}
-            enableManualRotation={enableManualRotation}
-            enableHoverRotation={enableHoverRotation}
-            enableManualZoom={enableManualZoom}
-            autoFrame={autoFrame}
-            fadeIn={fadeIn}
-            autoRotate={autoRotate}
-            autoRotateSpeed={autoRotateSpeed}
-            onLoaded={onModelLoaded}
+            url = {
+              url
+            }
+            xOff = {
+              modelXOffset
+            }
+            yOff = {
+              modelYOffset
+            }
+            pivot = {
+              pivot
+            }
+            initYaw = {
+              initYaw
+            }
+            initPitch = {
+              initPitch
+            }
+            minZoom = {
+              minZoomDistance
+            }
+            maxZoom = {
+              maxZoomDistance
+            }
+            enableMouseParallax = {
+              enableMouseParallax
+            }
+            enableManualRotation = {
+              enableManualRotation
+            }
+            enableHoverRotation = {
+              enableHoverRotation
+            }
+            enableManualZoom = {
+              enableManualZoom
+            }
+            autoFrame = {
+              autoFrame
+            }
+            fadeIn = {
+              fadeIn
+            }
+            autoRotate = {
+              autoRotate
+            }
+            autoRotateSpeed = {
+              autoRotateSpeed
+            }
+            onLoaded = {
+              onModelLoaded
+            }
+            quality = {
+              quality
+            }
+            setFps = {
+              setFps
+            }
           />
         </Suspense>
 
         {!isTouch && (
           <DesktopControls
-            pivot={pivot}
-            min={minZoomDistance}
-            max={maxZoomDistance}
-            zoomEnabled={enableManualZoom}
+            pivot = {
+              pivot
+            }
+            min = {
+              minZoomDistance
+            }
+            max = {
+              maxZoomDistance
+            }
+            zoomEnabled = {
+              enableManualZoom
+            }
           />
         )}
       </Canvas>

@@ -1,0 +1,143 @@
+/* Horizontal Panels Demo Styles */
+body {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 300;
+  margin: 0;
+  padding: 0;
+}
+.simple-container {
+  width: 400vw;
+  height: 100vh;
+  display: flex;
+  flex-wrap: nowrap;
+}
+.simple-panel {
+  width: 100vw;
+  min-width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #111;
+  font-weight: 600;
+  text-align: center;
+  background: #fff;
+}
+
+.simple-panel.bg1 { 
+    background: linear-gradient(90deg, #BE69FF 0%, #5F24B9 100%), #fff;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+   
+ }
+
+.simple-panel.bg2 { 
+    background: linear-gradient(90deg, #5F24B9 0%, #320058 100%), #fff;
+ }
+
+.simple-panel.bg3 { 
+    background: linear-gradient(90deg, #320058 0%, #140032 100%), #fff; 
+}
+
+.simple-panel.bg4 {
+    background: linear-gradient(90deg, #140032 0%, #080014 100%), #fff;
+}
+
+.panel-title, .panel-big-title {
+  display: block;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  line-height: 1.1;
+  font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif;
+}
+
+.panel-subtitle, .panel-big-desc, .panel-big-note {
+  display: block;
+  margin-top: 1.2rem;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #e0e6ed;
+  letter-spacing: 0.01em;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif;
+}
+
+.panel-big-title {
+  display: block;
+  font-size: 8.8rem;
+  font-weight: 800;
+  color: #a13a97;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+.panel-big-desc {
+  display: block;
+  font-size: 5.4rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.8rem;
+  text-align: center;
+}
+.panel-big-note {
+  display: block;
+  font-size: 4.4rem;
+  font-weight: 400;
+  color: #e0e6ed;
+  text-align: center;
+}
+.simple-panel.bg2, .simple-panel.bg3, .simple-panel.bg4 {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .panel-big-title {
+    font-size: 2.6rem;
+  }
+  .panel-big-desc {
+    font-size: 1.7rem;
+  }
+  .panel-big-note {
+    font-size: 1.3rem;
+  }
+}
+.typewriter-effect {
+  color: #fff;
+  font-size: 2.2rem;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  display: block;
+  margin: 2.5rem auto 0 auto;
+  max-width: 900px;
+  white-space: pre-wrap;
+  position: relative;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-align: center;
+}
+.typewriter-cursor {
+  display: inline-block;
+  width: 1ch;
+  color: #fff;
+  animation: blink 0.8s steps(1) infinite;
+  font-weight: 700;
+  font-size: 1em;
+}
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@media (max-width: 900px) {
+  .typewriter-effect {
+    font-size: 1.1rem;
+    max-width: 98vw;
+  }
+}

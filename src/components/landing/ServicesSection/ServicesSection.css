@@ -230,25 +230,39 @@
   }
 }
 
-@media (max-width: 1024px), (max-width: 1024px) and (max-height: 600px) {
+/* --- 1024x600: Force all service cards to be exactly the same size and add margins between boxes --- */
+@media (width: 1024px) and (height: 600px) {
   .services-grid {
-    gap: 1rem;
+    gap: 2rem !important;
     justify-content: center;
     display: flex;
     flex-wrap: wrap;
   }
   .service-card-wrapper {
-    min-width: 140px;
-    max-width: 200px;
+    min-width: 220px !important;
+    max-width: 220px !important;
+    width: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+    height: 220px !important;
+    display: flex;
+    align-items: stretch;
+    margin: 10px !important; /* Add margin between boxes */
   }
   .card-spotlight.service-card {
-    padding: 1rem 0.7rem;
-    font-size: 0.95rem;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    box-sizing: border-box;
   }
-  .service-title {
-    font-size: 1.05rem;
-  }
-  .service-description {
-    font-size: 0.9rem;
+  .service-title, .service-description, .service-icon {
+    flex-shrink: 0;
   }
 }

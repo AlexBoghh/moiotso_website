@@ -10,6 +10,10 @@
   position: relative;
 }
 
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 /* Hero section container that contains the PlasmaWave */
 .hero-section {
   position: relative;

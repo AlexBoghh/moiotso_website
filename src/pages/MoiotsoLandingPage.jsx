@@ -6,27 +6,29 @@ import ServicesSection from '../components/landing/ServicesSection/ServicesSecti
 import PlasmaWaveV2 from '../components/landing/PlasmaWave/PlasmaWaveV2';
 import CallToActionSection from '../components/landing/CallToActionSection/CallToActionSection';
 import Threads from '../content/Backgrounds/Threads/Threads';
+import ScrollVelocityShowcaseSection from '../components/landing/ScrollVelocityShowcaseSection';
+import PinTransitionSection from '../components/landing/PinTransitionSection';
+import TextEffects from '../components/landing/TextEffects/TextEffects';
 
-
-// 1) Importamos primero el CSS del header y el global
+// 1) global + header
 import '../components/landing/DisplayHeader/DisplayHeader.css';
 import '../css/landing.css';
 
-// 2) Después cargamos el CSS de ScrollTextSection
-import '@/components/landing/ScrollTextSection/ScrollTextSection.css';
 
-// 3) Y finalmente nuestros overrides en la landing
+
+// 4) landing-page overrides
 import './MoiotsoLandingPage.css';
 
 import ScrollTextSection from '@/components/landing/ScrollTextSection/ScrollTextSection';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SplitType from 'split-type'; // Asegúrate de tenerla instalada
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
 
 gsap.registerPlugin(ScrollTrigger, SplitType);
 
 const MoiotsoLandingPage = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [showCTA, setShowCTA] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -36,7 +38,7 @@ const MoiotsoLandingPage = () => {
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-    // *** Nuevo efecto para la sección ServicesSection con desplazamiento horizontal ***
+  // *** Nuevo efecto para la sección ServicesSection con desplazamiento horizontal ***
   useEffect(() => {
     if (!isMobile) {
       const section = document.querySelector('.services-section');
@@ -78,11 +80,22 @@ const MoiotsoLandingPage = () => {
     }
   }, [isMobile]);
 
+  useEffect(() => {
+    // Pin scroll-text section
+    const scrollTextTrigger = ScrollTrigger.create({
+      trigger: "#scroll-text",
+      start: "top top",
+      end: "bottom 150px",
+      pin: "#scroll-text"
+    });
+    
+    return () => {
+      scrollTextTrigger.kill();
+    };
+  }, []);
+
   return (
     <section className="landing-wrapper">
-      {/* Opcional: si tienes el <title> aquí, muévelo al <head> */}
-      {/* <title>Moiotso - Digital Agency</title> */}
-
       {/* Hero Section with Threads Background */}
       <div className="hero-section">
         <div className="plasma-wave-container">
@@ -93,16 +106,28 @@ const MoiotsoLandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <MoiotsoFeatureCards />
+      <MoiotsoFeatureCards id="features" />
 
       {/* Services Section */}
-      <ServicesSection />
+      <ServicesSection id="services" />
 
       {/* Scroll Text Section */}
-      <ScrollTextSection />
+      <ScrollTextSection id="scroll-text" />
+
+      {/* Technology Section */}
+      <ScrollVelocityShowcaseSection id="technologies" />
+
+      {/* NEW: Pin Transition Section */}
+      <PinTransitionSection onPinEnd={() => setShowCTA(true)} />
 
       {/* Call to Action Section */}
-      <CallToActionSection />
+      {showCTA && <CallToActionSection id="call-to-action" />}
+
+
+      {/* NEW: Text Effects Section */}
+      <div>
+        <TextEffects />
+      </div>
     </section>
   );
 };

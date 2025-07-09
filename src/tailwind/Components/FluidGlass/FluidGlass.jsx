@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import * as THREE from 'three'
-import { useRef, useState, useEffect, memo } from 'react'
+import { useRef, useState, useEffect, memo, Suspense, useMemo } from 'react'
 import { Canvas, createPortal, useFrame, useThree } from '@react-three/fiber'
 import {
   useFBO,
@@ -21,6 +21,14 @@ export default function FluidGlass({
   barProps = {},
   cubeProps = {},
 }) {
+  // Device/feature detection
+  const [quality, setQuality] = useState('high')
+  const [fps, setFps] = useState(60)
+  useEffect(() => {
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) setQuality('low')
+    if (navigator.deviceMemory && navigator.deviceMemory <= 4) setQuality('low')
+  }, [])
+
   const Wrapper = mode === 'bar' ? Bar : mode === 'cube' ? Cube : Lens
   const rawOverrides =
     mode === 'bar' ? barProps : mode === 'cube' ? cubeProps : lensProps
@@ -38,17 +46,20 @@ export default function FluidGlass({
     <Canvas
       camera={{ position: [0, 0, 20], fov: 15 }}
       gl={{ alpha: true }}
+      frameloop={quality === 'low' ? 'demand' : 'always'}
     >
       <ScrollControls damping={0.2} pages={3} distance={0.4}>
         {mode === 'bar' && <NavItems items={navItems} />}
-        <Wrapper modeProps={modeProps}>
-          <Scroll>
-            <Typography />
-            <Images />
-          </Scroll>
-          <Scroll html />
-          <Preload />
-        </Wrapper>
+        <Suspense fallback={null}>
+          <Wrapper modeProps={{ ...modeProps, quality, setFps }}>
+            <Scroll>
+              <Typography />
+              <Images quality={quality} />
+            </Scroll>
+            <Scroll html />
+            <Preload />
+          </Wrapper>
+        </Suspense>
       </ScrollControls>
     </Canvas>
   )
@@ -61,6 +72,8 @@ const ModeWrapper = memo(function ModeWrapper({
   lockToBottom = false,
   followPointer = true,
   modeProps = {},
+  quality = 'high',
+  setFps = () => {},
   ...props
 }) {
   const ref = useRef()
@@ -101,6 +114,16 @@ const ModeWrapper = memo(function ModeWrapper({
 
     // Background Color
     gl.setClearColor(0x5227ff, 1)
+
+    // FPS monitoring
+    if (!state.userData.lastFpsCheck) state.userData.lastFpsCheck = performance.now()
+    if (!state.userData.frameCount) state.userData.frameCount = 0
+    state.userData.frameCount++
+    if (performance.now() - state.userData.lastFpsCheck > 1000) {
+      setFps(state.userData.frameCount)
+      state.userData.frameCount = 0
+      state.userData.lastFpsCheck = performance.now()
+    }
   })
 
   const {
@@ -126,14 +149,18 @@ const ModeWrapper = memo(function ModeWrapper({
         geometry={nodes[geometryKey]?.geometry}
         {...props}
       >
-        <MeshTransmissionMaterial
-          buffer={buffer.texture}
-          ior={ior ?? 1.15}
-          thickness={thickness ?? 5}
-          anisotropy={anisotropy ?? 0.01}
-          chromaticAberration={chromaticAberration ?? 0.1}
-          {...extraMat}
-        />
+        {quality === 'low' ? (
+          <meshStandardMaterial color="#cccccc" />
+        ) : (
+          <MeshTransmissionMaterial
+            buffer={buffer.texture}
+            ior={ior ?? 1.15}
+            thickness={thickness ?? 5}
+            anisotropy={anisotropy ?? 0.01}
+            chromaticAberration={chromaticAberration ?? 0.1}
+            {...extraMat}
+          />
+        )}
       </mesh>
     </>
   )
@@ -263,10 +290,28 @@ function NavItems({ items }) {
   )
 }
 
-function Images() {
+function Images({ quality = 'high' }) {
   const group = useRef()
   const data = useScroll()
   const { height } = useThree((s) => s.viewport)
+  // Use lower-res images for low quality
+  const images = useMemo(() => [
+    quality === 'low'
+      ? 'https://images.unsplash.com/photo-1595001354022-29103be3b73a?w=800&q=40&auto=format'
+      : 'https://images.unsplash.com/photo-1595001354022-29103be3b73a?q=80&w=3270&auto=format',
+    quality === 'low'
+      ? 'https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?w=800&q=40&auto=format'
+      : 'https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?q=80&w=3270&auto=format',
+    quality === 'low'
+      ? 'https://images.unsplash.com/photo-1513682121497-80211f36a7d3?w=800&q=40&auto=format'
+      : 'https://images.unsplash.com/photo-1513682121497-80211f36a7d3?q=80&w=3388&auto=format',
+    quality === 'low'
+      ? 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?w=800&q=40&auto=format'
+      : 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?q=80&w=2843&auto=format',
+    quality === 'low'
+      ? 'https://images.unsplash.com/photo-1505069190533-da1c9af13346?w=800&q=40&auto=format'
+      : 'https://images.unsplash.com/photo-1505069190533-da1c9af13346?q=80&w=3387&auto=format',
+  ], [quality])
 
   useFrame(() => {
     group.current.children[0].material.zoom = 1 + data.range(0, 1 / 3) / 3
@@ -278,31 +323,11 @@ function Images() {
 
   return (
     <group ref={group}>
-      <Image
-        position={[-2, 0, 0]}
-        scale={[3, height / 1.1, 1]}
-        url="https://images.unsplash.com/photo-1595001354022-29103be3b73a?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      />
-      <Image
-        position={[2, 0, 3]}
-        scale={3}
-        url="https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      />
-      <Image
-        position={[-2.05, -height, 6]}
-        scale={[1, 3, 1]}
-        url="https://images.unsplash.com/photo-1513682121497-80211f36a7d3?q=80&w=3388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      />
-      <Image
-        position={[-0.6, -height, 9]}
-        scale={[1, 2, 1]}
-        url="https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?q=80&w=2843&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      />
-      <Image
-        position={[0.75, -height, 10.5]}
-        scale={1.5}
-        url="https://images.unsplash.com/photo-1505069190533-da1c9af13346?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      />
+      <Image position={[-2, 0, 0]} scale={[3, height / 1.1, 1]} url={images[0]} />
+      <Image position={[2, 0, 3]} scale={3} url={images[1]} />
+      <Image position={[-2.05, -height, 6]} scale={[1, 3, 1]} url={images[2]} />
+      <Image position={[-0.6, -height, 9]} scale={[1, 2, 1]} url={images[3]} />
+      <Image position={[0.75, -height, 10.5]} scale={1.5} url={images[4]} />
     </group>
   )
 }

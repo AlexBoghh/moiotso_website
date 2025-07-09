@@ -1,4 +1,4 @@
-/* Card stack demo section layout and style */
+/* Clean CallToActionSection.css - Remove all CardSwap overrides */
 .card-stack-demo-section {
   padding: 2.5vw 0; 
   width: 100%;
@@ -56,16 +56,18 @@
 .card-stack-demo-right {
   flex: 1 1 0;
   min-width: 340px;
-  overflow: visible; /* Changed from hidden to visible */
+  overflow: visible;
   position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
   padding: 0 !important;
   margin: 0 !important;
-  height: 400px; /* Set explicit height */
+  height: 400px;
+  /* Let CardSwap handle its own positioning and perspective */
 }
 
+/* Only keep styling properties for the cards, not transform properties */
 .card-stack-demo-card {
   border-radius: 16px !important;
   border: none !important;

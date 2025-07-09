@@ -120,7 +120,7 @@ export const ScrollVelocity = ({
   }
 
   return (
-    <section>
+    <section style={{ background: '#fff', width: '100%', minHeight: '10vh', height: '10vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 2, color: "black"}}>
       {texts.map((text, index) => (
         <VelocityText
           key={index}

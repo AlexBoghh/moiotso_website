@@ -24,3 +24,11 @@
     line-height: 5rem;
   }
 }
+
+@media (min-width: 600px) {
+  .scroller {
+    font-size: 3rem;
+    line-height: 5rem;
+  }
+}
+

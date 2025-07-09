@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
@@ -15,16 +15,32 @@ import * as THREE from 'three';
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true }) {
+  const [quality, setQuality] = useState('high');
+  const [fps, setFps] = useState(60);
+  const [webglSupported, setWebglSupported] = useState(true);
+  useEffect(() => {
+    let canvas = document.createElement('canvas');
+    let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) setWebglSupported(false);
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) setQuality('low');
+    if (navigator.deviceMemory && navigator.deviceMemory <= 4) setQuality('low');
+  }, []);
+  if (!webglSupported) {
+    return <div className="relative z-0 w-full h-screen flex justify-center items-center origin-center">WebGL not supported on this device.</div>;
+  }
   return (
     <div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
       <Canvas
         camera={{ position: position, fov: fov }}
         gl={{ alpha: transparent }}
+        frameloop={quality === 'low' ? 'demand' : 'always'}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60}>
-          <Band />
+          <Suspense fallback={null}>
+            <Band quality={quality} setFps={setFps} />
+          </Suspense>
         </Physics>
         <Environment blur={0.75}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -36,7 +52,7 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
     </div>
   );
 }
-function Band({ maxSpeed = 50, minSpeed = 0 }) {
+function Band({ maxSpeed = 50, minSpeed = 0, quality = 'high', setFps = () => {} }) {
   const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
   const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3();
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
@@ -94,6 +110,15 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
     }
+    // FPS monitoring
+    if (!state.userData.lastFpsCheck) state.userData.lastFpsCheck = performance.now();
+    if (!state.userData.frameCount) state.userData.frameCount = 0;
+    state.userData.frameCount++;
+    if (performance.now() - state.userData.lastFpsCheck > 1000) {
+      setFps(state.userData.frameCount);
+      state.userData.frameCount = 0;
+      state.userData.lastFpsCheck = performance.now();
+    }
   });
 
   curve.curveType = 'chordal';
@@ -122,7 +147,11 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
             onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}>
             <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial map={materials.base.map} map-anisotropy={16} clearcoat={1} clearcoatRoughness={0.15} roughness={0.9} metalness={0.8} />
+              {quality === 'low' ? (
+                <meshStandardMaterial color="#cccccc" />
+              ) : (
+                <meshPhysicalMaterial map={materials.base.map} map-anisotropy={16} clearcoat={1} clearcoatRoughness={0.15} roughness={0.9} metalness={0.8} />
+              )}
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />

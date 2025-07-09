@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
 const vertexShader = /* glsl */`
@@ -137,26 +137,37 @@ const ShapeBlur = ({
   circleEdge = 0.5
 }) => {
   const mountRef = useRef();
+  const [webglSupported, setWebglSupported] = useState(true);
+  const [fps, setFps] = useState(60);
+  const [quality, setQuality] = useState('high');
+
+  // Device/feature detection
+  useEffect(() => {
+    let canvas = document.createElement('canvas');
+    let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) setWebglSupported(false);
+    // Detect low-end device (simple heuristic)
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) setQuality('low');
+    if (navigator.deviceMemory && navigator.deviceMemory <= 4) setQuality('low');
+  }, []);
 
   useEffect(() => {
+    if (!webglSupported) return;
     const mount = mountRef.current;
     let animationFrameId;
-    let time = 0, lastTime = 0;
-
+    let time = 0, lastTime = 0, lastFpsCheck = 0, frameCount = 0;
+    let minFrameTime = quality === 'low' ? 1000 / 30 : 1000 / 60; // 30fps for low, 60fps for high
+    let lastRender = performance.now();
     const vMouse = new THREE.Vector2();
     const vMouseDamp = new THREE.Vector2();
     const vResolution = new THREE.Vector2();
-
     let w = 1, h = 1;
-
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera();
     camera.position.z = 1;
-
     const renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
-
     const geo = new THREE.PlaneGeometry(1, 1);
     const material = new THREE.ShaderMaterial({
       vertexShader,
@@ -164,7 +175,7 @@ const ShapeBlur = ({
       uniforms: {
         u_mouse: { value: vMouseDamp },
         u_resolution: { value: vResolution },
-        u_pixelRatio: { value: pixelRatioProp },
+        u_pixelRatio: { value: quality === 'low' ? 1 : pixelRatioProp },
         u_shapeSize: { value: shapeSize },
         u_roundness: { value: roundness },
         u_borderSize: { value: borderSize },
@@ -174,77 +185,83 @@ const ShapeBlur = ({
       defines: { VAR: variation },
       transparent: true
     });
-
     const quad = new THREE.Mesh(geo, material);
     scene.add(quad);
-
     const onPointerMove = (e) => {
       const rect = mount.getBoundingClientRect();
       vMouse.set(e.clientX - rect.left, e.clientY - rect.top);
     };
-
     document.addEventListener('mousemove', onPointerMove);
     document.addEventListener('pointermove', onPointerMove);
-
     const resize = () => {
       const container = mountRef.current;
       w = container.clientWidth;
       h = container.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio, 2);
-
+      const dpr = quality === 'low' ? 1 : Math.min(window.devicePixelRatio, 2);
       renderer.setSize(w, h);
       renderer.setPixelRatio(dpr);
-
       camera.left = -w / 2;
       camera.right = w / 2;
       camera.top = h / 2;
       camera.bottom = -h / 2;
       camera.updateProjectionMatrix();
-
       quad.scale.set(w, h, 1);
       vResolution.set(w, h).multiplyScalar(dpr);
       material.uniforms.u_pixelRatio.value = dpr;
     };
-
     resize();
     window.addEventListener('resize', resize);
-
     const ro = new ResizeObserver(() => resize());
     if (mountRef.current) ro.observe(mountRef.current);
-
+    // FPS monitoring and frame limiting
     const update = () => {
       time = performance.now() * 0.001;
+      const now = performance.now();
       const dt = time - lastTime;
       lastTime = time;
-
+      // Frame rate limiting
+      if (now - lastRender < minFrameTime) {
+        animationFrameId = requestAnimationFrame(update);
+        return;
+      }
+      lastRender = now;
       ['x', 'y'].forEach(k => {
         vMouseDamp[k] = THREE.MathUtils.damp(vMouseDamp[k], vMouse[k], 8, dt);
       });
-
       renderer.render(scene, camera);
+      // FPS calculation
+      frameCount++;
+      if (now - lastFpsCheck > 1000) {
+        setFps(frameCount);
+        frameCount = 0;
+        lastFpsCheck = now;
+        // Auto quality drop if FPS is low
+        if (fps < 30 && quality !== 'low') setQuality('low');
+      }
       animationFrameId = requestAnimationFrame(update);
     };
     update();
-
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
       if (ro) ro.disconnect();
       document.removeEventListener('mousemove', onPointerMove);
       document.removeEventListener('pointermove', onPointerMove);
-      mount.removeChild(renderer.domElement);
-      renderer.dispose();
+      if (renderer.domElement && mount.contains(renderer.domElement)) {
+        mount.removeChild(renderer.domElement);
+      }
+      // Robust Three.js cleanup
+      geo.dispose && geo.dispose();
+      material.dispose && material.dispose();
+      renderer.dispose && renderer.dispose();
     };
-  }, [
-    variation,
-    pixelRatioProp,
-    shapeSize,
-    roundness,
-    borderSize,
-    circleSize,
-    circleEdge
-  ]);
+  }, [variation, pixelRatioProp, shapeSize, roundness, borderSize, circleSize, circleEdge, webglSupported, quality, fps]);
 
+  if (!webglSupported) {
+    return <div className={`w-full h-full ${className}`}>WebGL not supported on this device.</div>;
+  }
+  // Optionally show FPS for debugging (remove in production)
+  // return <div ref={mountRef} className={`w-full h-full ${className}`}>{fps} FPS</div>;
   return <div ref={mountRef} className={`w-full h-full ${className}`} />;
 };
 

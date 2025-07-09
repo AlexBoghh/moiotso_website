@@ -1,0 +1,27 @@
+.scroll-velocity-showcase-section {
+  background: #fff !important;
+  padding: 5rem 0;
+  width: 100%;
+  min-height: 30vh;
+  height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.scroll-velocity-text {
+  color: #111;
+}
+
+@media (max-width: 1024px) and (max-height: 600px) {
+  .scroll-velocity-showcase-section .scroll-velocity-text {
+    font-size: 1rem !important;
+  }
+
+  .scroll-velocity-showcase-section {
+    min-height: 45vh !important;
+    height: 45vh !important;
+    background: #fff !important;
+  }
+}

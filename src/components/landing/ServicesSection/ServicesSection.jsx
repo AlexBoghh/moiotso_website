@@ -84,19 +84,6 @@ const ServicesSection = () => {
       )
     },
     {
-      title: "Web Development",
-      description: "Build lightning-fast websites that work beautifully on every device.",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
-          <path d="M2 8h20" stroke="currentColor" strokeWidth="2"/>
-          <circle cx="6" cy="6" r="1" fill="currentColor"/>
-          <circle cx="8.5" cy="6" r="1" fill="currentColor"/>
-          <circle cx="11" cy="6" r="1" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
       title: "Front-End Development",
       description: "Deliver sleek, interactive user experiences that drive engagement.",
       icon: (
@@ -154,16 +141,7 @@ const ServicesSection = () => {
         </svg>
       )
     },
-    {
-      title: "Mobile App Development",
-      description: "Launch secure, high-performing apps for both iOS and Android.",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" strokeWidth="2"/>
-          <path d="M12 18H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
-    }
+    
   ];
 
   // Split unique cards between the two rows
