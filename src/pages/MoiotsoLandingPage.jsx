@@ -9,10 +9,13 @@ import Threads from '../content/Backgrounds/Threads/Threads';
 import ScrollVelocityShowcaseSection from '../components/landing/ScrollVelocityShowcaseSection';
 import PinTransitionSection from '../components/landing/PinTransitionSection';
 import TextEffects from '../components/landing/TextEffects/TextEffects';
+import CardsScroll from '../components/landing/ITSolutions/CardsScroll';
+
 
 // 1) global + header
 import '../components/landing/DisplayHeader/DisplayHeader.css';
 import '../css/landing.css';
+
 
 
 
@@ -109,7 +112,7 @@ const MoiotsoLandingPage = () => {
       <MoiotsoFeatureCards id="features" />
 
       {/* Services Section */}
-      <ServicesSection id="services" />
+      <CardsScroll />;
 
       {/* Scroll Text Section */}
       <ScrollTextSection id="scroll-text" />

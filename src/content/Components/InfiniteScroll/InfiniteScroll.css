@@ -38,17 +38,25 @@
 }
 
 .infinite-scroll-item {
-  --accent-color: #ffffff;
-  border-radius: 15px;
+  --accent-color: #fff;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  font-size: 1.25rem;
+  padding: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   text-align: center;
-  border: 2px solid var(--accent-color);
+  border: 2.5px solid var(--accent-color);
+  background: transparent;
+  color: #fff;
   user-select: none;
   box-sizing: border-box;
   position: relative;
+  box-shadow: 0 0 0 1px #fff2;
+  transition: box-shadow 0.2s;
+}
+
+.infinite-scroll-item:hover {
+  box-shadow: 0 0 16px 2px #b993ff99;
 }
